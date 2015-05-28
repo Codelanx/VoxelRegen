@@ -41,7 +41,7 @@ public enum VoxelLang implements Lang {
     COMMAND_INFO_REMOVE("command.info.remove", "Removes a region with a given name"),
     COMMAND_INFO_LIST("command.info.list", "Lists all available regions"),
     COMMAND_SELECT_LEFT("command.select.exec-left", "Get in place, and left click to mark position 1!"),
-    COMMAND_SELECT_RIGHT("command.select.exec-right", "Now move into a new spot to mark position 2!"),
+    COMMAND_SELECT_RIGHT("command.select.exec-right", "Now move into a new spot and right click to mark position 2!"),
     COMMAND_SELECT_DONE("command.select.done", "Region selected, create a regen group with &e%s&f"),
     COMMAND_CREATE_NOREGION("command.create.no-region", "You must define a region first with &e%s&f!"),
     COMMAND_CREATE_RESERVED("command.create.reserved-word", "&cThat region name is reserved!"),
