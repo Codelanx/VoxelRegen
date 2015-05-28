@@ -19,16 +19,17 @@
  */
 package com.codelanx.voxelregen.data;
 
-import com.codelanx.codelanxlib.data.types.MySQL;
+import com.codelanx.codelanxlib.data.types.SQLite;
 import com.codelanx.codelanxlib.util.Scheduler;
-import com.codelanx.codelanxlib.util.cache.Cache;
 import com.codelanx.voxelregen.RegenRegion;
-import com.codelanx.voxelregen.VoxelConfig;
 import com.codelanx.voxelregen.VoxelRegion;
+import java.io.File;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.util.Vector;
@@ -42,17 +43,14 @@ import org.bukkit.util.Vector;
  */
 public class DataFacade {
 
-    private final MySQL.ConnectionPrefs prefs = new MySQL.ConnectionPrefs(
-            VoxelConfig.MYSQL_HOST.as(String.class),
-            VoxelConfig.MYSQL_USER.as(String.class),
-            VoxelConfig.MYSQL_PASS.as(String.class),
-            VoxelConfig.MYSQL_DATABASE.as(String.class),
-            VoxelConfig.MYSQL_PORT.as(String.class)
-    );
-    private final Cache<MySQL> db = MySQL.newCache(prefs, TimeUnit.MINUTES.toMillis(VoxelConfig.MYSQL_KEEP_ALIVE.as(int.class)));
+    private final SQLite db = new SQLite();
     
-    public DataFacade() {
-        MySQL db = this.getDB();
+    public DataFacade(File location) {
+        try {
+            this.db.open(location);
+        } catch (SQLException ex) {
+            Logger.getLogger(DataFacade.class.getName()).log(Level.SEVERE, "Error opening SQLite connection", ex);
+        }
         if (!db.checkTable("regions")) {
             db.update(Statements.CREATE_REGIONS_TABLE);
         }
@@ -72,8 +70,8 @@ public class DataFacade {
     }
     
     public synchronized void addRegion(String name, Map<Vector, Material> blocks, UUID world) {
-        this.getDB().update(Statements.ADD_REGION, name, world);
-        this.getDB().batchUpdate(Statements.ADD_BLOCKS_TO_REGION, 100, blocks.entrySet(),
+        this.db.update(Statements.ADD_REGION, name, world);
+        this.db.batchUpdate(Statements.ADD_BLOCKS_TO_REGION, 100, blocks.entrySet(),
                 ent -> name,
                 ent -> ent.getKey().getBlockX(),
                 ent -> ent.getKey().getBlockY(),
@@ -82,12 +80,12 @@ public class DataFacade {
     }
 
     public synchronized void removeRegion(String name) {
-        this.getDB().update(Statements.REMOVE_REGION, name);
+        this.db.update(Statements.REMOVE_REGION, name);
     }
 
     public RegenRegion getRegion(String name) {
-        UUID world = this.getDB().query(rs -> { return UUID.fromString(rs.getString("world_uuid")); }, Statements.GET_WORLD, name).getResponse();
-        return this.getDB().query(rs -> {
+        UUID world = this.db.query(rs -> { return UUID.fromString(rs.getString("world_uuid")); }, Statements.GET_WORLD, name).getResponse();
+        return this.db.query(rs -> {
             Map<Vector, Material> back = new HashMap<>();
             while (rs.next()) {
                 back.put(new Vector(rs.getInt("x"), rs.getInt("y"), rs.getInt("z")), Material.matchMaterial(rs.getString("material")));
@@ -97,14 +95,14 @@ public class DataFacade {
     }
     
     public Map<String, RegenRegion> getRegions() {
-        Map<String, UUID> regions = this.getDB().query(rs -> { 
+        Map<String, UUID> regions = this.db.query(rs -> { 
             Map<String, UUID> back = new HashMap<>();
             while (rs.next()) {
                 back.put(rs.getString("name"), UUID.fromString(rs.getString("world_uuid")));
             }
             return back;
         }, Statements.GET_REGION_META).getResponse();
-        return this.getDB().query(rs -> {
+        return this.db.query(rs -> {
             Map<String, Map<Vector, Material>> data = new HashMap<>();
             while (rs.next()) {
                 this.getSafeSubMap(data, rs.getString("name")).put(new Vector(rs.getInt("x"), rs.getInt("y"), rs.getInt("z")), Material.matchMaterial(rs.getString("material")));
@@ -120,10 +118,6 @@ public class DataFacade {
             map.put(key, back);
         }
         return back;
-    }
-    
-    private synchronized MySQL getDB() {
-        return this.db.get();
     }
 
 }

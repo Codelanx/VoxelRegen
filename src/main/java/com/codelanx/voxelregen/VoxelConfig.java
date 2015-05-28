@@ -39,12 +39,6 @@ public enum VoxelConfig implements Config {
     
     BLOCKS_TO_REGEN("regenerated-blocks", new ArrayList<>()),
     REGEN_TIME("seconds-between-regens", 300),
-    MYSQL_HOST("mysql.host", "localhost"),
-    MYSQL_USER("mysql.user", "root"),
-    MYSQL_PASS("mysql.pass", "password"),
-    MYSQL_DATABASE("mysql.database", "skyblock"),
-    MYSQL_PORT("mysql.port", "3306"),
-    MYSQL_KEEP_ALIVE("mysql.keep-alive", 10),
     ;
 
     private static final DataHolder<Yaml> DATA = new DataHolder<>(Yaml.class);
