@@ -44,8 +44,8 @@ public class Statements {
             + " `data` INTEGER NOT NULL,"
             + " UNIQUE (x, y, z) ON CONFLICT REPLACE"
             + ")";
-    static final String ADD_REGION = "INSERT IGNORE INTO `regions` (`name`, `world_uuid`) VALUES (?, ?)";
-    static final String ADD_BLOCKS_TO_REGION = "INSERT IGNORE INTO `blocks` (region, x, y, z, material, data)"
+    static final String ADD_REGION = "INSERT OR IGNORE INTO `regions` (`name`, `world_uuid`) VALUES (?, ?)";
+    static final String ADD_BLOCKS_TO_REGION = "INSERT OR REPLACE INTO `blocks` (region, x, y, z, material, data)"
             + " SELECT regions.id AS region, ? AS x, ? AS y, ? AS z, ? AS material, ? AS data"
             + " FROM regions WHERE regions.name = ?";
     static final String GET_REGION_CONTENTS = "SELECT blocks.x, blocks.y, blocks.z, blocks.material, blocks.data"
