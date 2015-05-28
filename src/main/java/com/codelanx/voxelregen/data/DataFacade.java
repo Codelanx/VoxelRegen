@@ -23,6 +23,7 @@ import com.codelanx.codelanxlib.data.types.SQLite;
 import com.codelanx.codelanxlib.util.BlockData;
 import com.codelanx.codelanxlib.util.Scheduler;
 import com.codelanx.voxelregen.RegenRegion;
+import com.codelanx.voxelregen.VoxelRegen;
 import com.codelanx.voxelregen.VoxelRegion;
 import java.io.File;
 import java.sql.SQLException;
@@ -59,10 +60,11 @@ public class DataFacade {
         }
     }
 
-    public synchronized void addRegion(String name, VoxelRegion region) {
+    public synchronized void addRegion(VoxelRegen plugin, String name, VoxelRegion region) {
         Scheduler.runAsyncTask(() -> {
             Map<Vector, BlockData> materials = region.calculate();
             this.addRegion(name, materials, region.getWorld().getUID());
+            plugin.getWorker().retrieveRegion(name);
         });
     }
     

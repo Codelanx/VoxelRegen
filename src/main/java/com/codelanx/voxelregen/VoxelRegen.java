@@ -74,8 +74,7 @@ public class VoxelRegen extends JavaPlugin {
         Exceptions.allNotNull(player, name);
         VoxelRegion cr = this.creations.remove(player);
         Validate.notNull(cr, "No queued region creation for UUID '" + player + "'");
-        this.data.addRegion(name, cr);
-        this.worker.retrieveRegion(name);
+        this.data.addRegion(this, name, cr);
     }
     
     public boolean hasQueuedRegion(UUID player) {
@@ -98,6 +97,10 @@ public class VoxelRegen extends JavaPlugin {
     
     public DataFacade getDataFacade() {
         return this.data;
+    }
+
+    public RegionWorker getWorker() {
+        return this.worker;
     }
 
 }
