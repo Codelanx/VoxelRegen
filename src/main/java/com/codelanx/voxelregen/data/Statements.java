@@ -29,23 +29,19 @@ package com.codelanx.voxelregen.data;
 public class Statements {
 
     static final String CREATE_REGIONS_TABLE = "CREATE TABLE IF NOT EXISTS `regions` ("
-            + " `id` MEDIUMINT(7) UNSIGNED NOT NULL AUTO_INCREMENT,"
-            + " `name` VARCHAR(24) NOT NULL OCOLLATE 'utf8_unicode_ci',"
-            + " `world_uuid` CHAR(36) NOT NULL COLLATE 'utf8_unicode_ci`,"
-            + " PRIMARY KEY (`id`),"
-            + " UNIQUE INDEX `name` (`name`)"
+            + " `id` INTEGER UNSIGNED PRIMARY KEY NOT NULL,"
+            + " `name` TEXT NOT NULL,"
+            + " `world_uuid` TEXT NOT NULL,"
+            + " UNIQUE (`name`) ON CONFLICT ROLLBACK"
             + ")";
     static final String CREATE_BLOCKS_TABLE = "CREATE TABLE IF NOT EXISTS `blocks` ("
-            + " `id` MEDIUMINT(8) UNSIGNED NOT NULL AUTO_INCREMENT,"
-            + " `region` MEDIUMINT(7) UNSIGNED NOT NULL,"
-            + " `x` MEDIUMINT(8) NOT NULL,"
-            + " `y` MEDIUMINT(8) NOT NULL,"
-            + " `z` MEDIUMINT(8) NOT NULL,"
-            + " `material` VARCHAR(16) NOT NULL COLLATE 'utf8_unicode_ci',"
-            + " PRIMARY KEY (`id`),"
-            + " UNIQUE INDEX `location` (`x`, `y`, `z`),"
-            + " INDEX `FK_region` (`region`),"
-            + " CONSTRAINT `FK_region` FOREIGN KEY (`region`) REFERENCES `regions` (`id`) ON UPDATE CASCADE ON DELETE CASCADE"
+            + " `id` INTEGER UNSIGNED PRIMARY KEY NOT NULL,"
+            + " `region` INTEGER NOT NULL,"
+            + " `x` INTEGER NOT NULL,"
+            + " `y` INTEGER NOT NULL,"
+            + " `z` INTEGER NOT NULL,"
+            + " `material` TEXT NOT NULL,"
+            + " UNIQUE (x, y, z) ON CONFLICT REPLACE"
             + ")";
     static final String ADD_REGION = "INSERT IGNORE INTO `regions` (`name`, `world_uuid`) VALUES (?, ?)";
     static final String ADD_BLOCKS_TO_REGION = "INSERT IGNORE INTO `blocks` (region, x, y, z, material)"
@@ -55,6 +51,8 @@ public class Statements {
             + " FROM blocks"
             + " INNER JOIN regions ON regions.id = blocks.region"
             + " WHERE regions.name = ?";
+    static final String GET_REGION_ID = "SELECT id FROM regions WHERE name = ?";
+    static final String REMOVE_BLOCKS_WITH_ID = "DELETE FROM blocks WHERE region = ?";
     static final String REMOVE_REGION = "DELETE FROM `regions` WHERE `name` = ?";
     static final String GET_WORLD = "SELECT `world_uuid` FROM `regions` WHERE `name` = ?";
     static final String GET_REGION_META = "SELECT `name`, `world_uuid` FROM `regions`";

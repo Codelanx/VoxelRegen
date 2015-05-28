@@ -77,6 +77,8 @@ public class DataFacade {
     }
 
     public synchronized void removeRegion(String name) {
+        int id = this.db.query(rs -> { return rs.getInt("id"); }, Statements.GET_REGION_ID, name).getResponse();
+        this.db.update(Statements.REMOVE_BLOCKS_WITH_ID, id);
         this.db.update(Statements.REMOVE_REGION, name);
     }
 
