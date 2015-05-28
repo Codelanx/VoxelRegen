@@ -19,6 +19,7 @@
  */
 package com.codelanx.voxelregen;
 
+import com.codelanx.codelanxlib.util.BlockData;
 import com.codelanx.codelanxlib.util.Lambdas;
 import com.codelanx.codelanxlib.util.Reflections;
 import com.codelanx.codelanxlib.util.exception.Exceptions;
@@ -70,21 +71,22 @@ public class VoxelRegion implements ConfigurationSerializable {
 
     private Vector toFlooredVector(Vector one, Vector two, IntBinaryOperator pred) {
         return new Vector(pred.applyAsInt(one.getBlockX(), two.getBlockX()),
-        pred.applyAsInt(one.getBlockY(), two.getBlockY()),
-        pred.applyAsInt(one.getBlockZ(), two.getBlockZ()));
+                pred.applyAsInt(one.getBlockY(), two.getBlockY()),
+                pred.applyAsInt(one.getBlockZ(), two.getBlockZ()));
     }
 
-    public Map<Vector, Material> calculate() {
-        Set<Material> types = VoxelConfig.BLOCKS_TO_REGEN.as(List.class, String.class)
-                .stream().map(Material::matchMaterial).filter(Lambdas::notNull).collect(Collectors.toSet());
-        Map<Vector, Material> back = new HashMap<>();
+    public Map<Vector, BlockData> calculate() {
+        Set<BlockData> types = VoxelConfig.BLOCKS_TO_REGEN.as(List.class, String.class)
+                .stream().map(BlockData::fromString).filter(Lambdas::notNull).collect(Collectors.toSet());
+        Map<Vector, BlockData> back = new HashMap<>();
         Location curr = max.toLocation(this.getWorld());
         for(; curr.getBlockY() >= 0 || curr.getBlockY() >= min.getBlockY(); curr.add(0, -1, 0)) {
             for (; curr.getBlockX() >= min.getBlockX(); curr.add(-1, 0, 0)) {
                 for (; curr.getBlockZ() >= min.getBlockZ(); curr.add(0, 0, -1)) {
                     Block b = curr.getBlock();
-                    if (types.contains(b.getType())) {
-                        back.put(curr.toVector(), b.getType());
+                    BlockData ch = new BlockData(b.getType(), b.getData());
+                    if (types.contains(ch)) {
+                        back.put(curr.toVector(), ch);
                     }
                 }
                 curr.setZ(max.getBlockZ());

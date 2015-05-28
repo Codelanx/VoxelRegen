@@ -20,6 +20,7 @@
 package com.codelanx.voxelregen.data;
 
 import com.codelanx.codelanxlib.data.types.SQLite;
+import com.codelanx.codelanxlib.util.BlockData;
 import com.codelanx.codelanxlib.util.Scheduler;
 import com.codelanx.voxelregen.RegenRegion;
 import com.codelanx.voxelregen.VoxelRegion;
@@ -31,7 +32,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.bukkit.Material;
 import org.bukkit.util.Vector;
 
 /**
@@ -61,18 +61,19 @@ public class DataFacade {
 
     public synchronized void addRegion(String name, VoxelRegion region) {
         Scheduler.runAsyncTask(() -> {
-            Map<Vector, Material> materials = region.calculate();
+            Map<Vector, BlockData> materials = region.calculate();
             this.addRegion(name, materials, region.getWorld().getUID());
         });
     }
     
-    public synchronized void addRegion(String name, Map<Vector, Material> blocks, UUID world) {
+    public synchronized void addRegion(String name, Map<Vector, BlockData> blocks, UUID world) {
         this.db.update(Statements.ADD_REGION, name, world.toString());
         this.db.batchUpdate(Statements.ADD_BLOCKS_TO_REGION, 100, blocks.entrySet(),
                 ent -> ent.getKey().getBlockX(),
                 ent -> ent.getKey().getBlockY(),
                 ent -> ent.getKey().getBlockZ(),
-                ent -> ent.getValue().toString(),
+                ent -> ent.getValue().getMaterial().toString(),
+                ent -> ent.getValue().getData(),
                 ent -> name);
     }
 
@@ -85,9 +86,9 @@ public class DataFacade {
     public RegenRegion getRegion(String name) {
         UUID world = this.db.query(rs -> { return UUID.fromString(rs.getString("world_uuid")); }, Statements.GET_WORLD, name).getResponse();
         return this.db.query(rs -> {
-            Map<Vector, Material> back = new HashMap<>();
+            Map<Vector, BlockData> back = new HashMap<>();
             while (rs.next()) {
-                back.put(new Vector(rs.getInt("x"), rs.getInt("y"), rs.getInt("z")), Material.matchMaterial(rs.getString("material")));
+                back.put(new Vector(rs.getInt("x"), rs.getInt("y"), rs.getInt("z")), BlockData.fromString(rs.getString("material") + ":" + rs.getByte("data")));
             }
             return new RegenRegion(world, back);
         }, Statements.GET_REGION_CONTENTS, name).getResponse();
@@ -102,9 +103,9 @@ public class DataFacade {
             return back;
         }, Statements.GET_REGION_META).getResponse();
         return this.db.query(rs -> {
-            Map<String, Map<Vector, Material>> data = new HashMap<>();
+            Map<String, Map<Vector, BlockData>> data = new HashMap<>();
             while (rs.next()) {
-                this.getSafeSubMap(data, rs.getString("name")).put(new Vector(rs.getInt("x"), rs.getInt("y"), rs.getInt("z")), Material.matchMaterial(rs.getString("material")));
+                this.getSafeSubMap(data, rs.getString("name")).put(new Vector(rs.getInt("x"), rs.getInt("y"), rs.getInt("z")), BlockData.fromString(rs.getString("material") + ":" + rs.getByte("data")));
             }
             return data.entrySet().stream().collect(Collectors.toMap(ent -> ent.getKey(), ent -> new RegenRegion(regions.get(ent.getKey()), ent.getValue())));
         }, Statements.GET_ALL_REGIONS).getResponse();

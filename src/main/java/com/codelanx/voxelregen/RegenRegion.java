@@ -19,14 +19,15 @@
  */
 package com.codelanx.voxelregen;
 
+import com.codelanx.codelanxlib.util.BlockData;
 import com.codelanx.codelanxlib.util.exception.Exceptions;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
@@ -40,16 +41,16 @@ import org.bukkit.util.Vector;
 public class RegenRegion {
 
     private final World world;
-    private final Map<Vector, Material> blocks = new HashMap<>();
+    private final Map<Vector, BlockData> blocks = new HashMap<>();
 
-    public RegenRegion(UUID world, Map<Vector, Material> blocks) {
+    public RegenRegion(UUID world, Map<Vector, BlockData> blocks) {
         World set = Bukkit.getWorld(world);
         Exceptions.notNull(set, IllegalStateException.class);
         this.world = set;
         this.blocks.putAll(blocks);
     }
     
-    public Map<Vector, Material> getBlocks() {
+    public Map<Vector, BlockData> getBlocks() {
         return Collections.unmodifiableMap(this.blocks);
     }
     
@@ -60,7 +61,9 @@ public class RegenRegion {
     public void regen(Plugin p) {
         Bukkit.getScheduler().callSyncMethod(p, () -> {
             this.blocks.entrySet().forEach(ent -> {
-                this.world.getBlockAt(ent.getKey().getBlockX(), ent.getKey().getBlockY(), ent.getKey().getBlockZ()).setType(ent.getValue());
+                Block b = this.world.getBlockAt(ent.getKey().getBlockX(), ent.getKey().getBlockY(), ent.getKey().getBlockZ());
+                b.setType(ent.getValue().getMaterial());
+                b.setData(ent.getValue().getData());
             });
             return null;
         });
