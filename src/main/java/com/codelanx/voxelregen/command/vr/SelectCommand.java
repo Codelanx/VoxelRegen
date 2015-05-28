@@ -97,7 +97,7 @@ public class SelectCommand extends CommandNode<VoxelRegen> implements Listener {
                 if (first != null) {
                     Location second = event.getPlayer().getLocation();
                     this.plugin.queueRegionCreation(event.getPlayer().getUniqueId(), new VoxelRegion(first, second));
-                    Lang.sendMessage(event.getPlayer(), VoxelLang.COMMAND_SELECT_DONE, this.getParent().getChild("create").getUsage());
+                    Lang.sendMessage(event.getPlayer(), VoxelLang.COMMAND_SELECT_DONE, "/" + this.getParent().getChild("create").getUsage());
                 }
                 break;
         }

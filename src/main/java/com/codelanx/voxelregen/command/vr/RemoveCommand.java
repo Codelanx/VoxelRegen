@@ -23,7 +23,6 @@ import com.codelanx.codelanxlib.command.CommandNode;
 import com.codelanx.codelanxlib.command.CommandStatus;
 import com.codelanx.codelanxlib.command.TabInfo;
 import com.codelanx.codelanxlib.config.Lang;
-import com.codelanx.codelanxlib.util.Scheduler;
 import com.codelanx.voxelregen.VoxelLang;
 import com.codelanx.voxelregen.VoxelRegen;
 import java.util.List;
@@ -67,7 +66,7 @@ public class RemoveCommand extends CommandNode<VoxelRegen> {
 
     @Override
     public Lang info() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return VoxelLang.COMMAND_INFO_REMOVE;
     }
 
 }

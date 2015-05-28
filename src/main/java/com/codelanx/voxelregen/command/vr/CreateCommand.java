@@ -64,7 +64,7 @@ public class CreateCommand extends CommandNode<VoxelRegen> {
             return CommandStatus.SUCCESS;
         }
         if (!this.plugin.hasQueuedRegion(p.getUniqueId())) {
-            Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_NOREGION, this.getParent().getChild("select").getUsage());
+            Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_NOREGION, "/" + this.getParent().getChild("select").getUsage());
             return CommandStatus.SUCCESS;
         }
         if (this.plugin.regionExists(args[0])) {

@@ -20,11 +20,9 @@
 package com.codelanx.voxelregen;
 
 import com.codelanx.codelanxlib.util.Scheduler;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class description for {@link RegionWorker}
@@ -35,22 +33,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class RegionWorker implements Runnable {
 
-    private final Map<String, RegenRegion> regions = new HashMap<>();
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Map<String, RegenRegion> regions = new ConcurrentHashMap<>();
     private final VoxelRegen plugin;
     
     public RegionWorker(VoxelRegen plugin) {
         this.plugin = plugin;
         Scheduler.runAsyncTask(() -> {
             Map<String, RegenRegion> in = this.plugin.getDataFacade().getRegions();
-            try {
-                this.lock.readLock().lock();
-                this.lock.writeLock().lock();
-                this.regions.putAll(in);
-            } finally {
-                this.lock.writeLock().unlock();
-                this.lock.readLock().unlock();
-            }
+            this.regions.putAll(in);
         });
     }
 
@@ -62,30 +52,15 @@ public class RegionWorker implements Runnable {
     }
 
     public void removeRegion(String name) {
-        try {
-            this.lock.writeLock().lock();
-            this.regions.remove(name);
-        } finally {
-            this.lock.writeLock().unlock();
-        }
+        this.regions.remove(name);
     }
 
     public Set<String> getRegionNames() {
-        try {
-            this.lock.readLock().lock();
-            return this.regions.keySet();
-        } finally {
-            this.lock.readLock().unlock();
-        }
+        return this.regions.keySet();
     }
 
     public void addRegion(String name, RegenRegion region) {
-        try {
-            this.lock.writeLock().lock();
-            this.regions.put(name, region);
-        } finally {
-            this.lock.writeLock().unlock();
-        }
+        this.regions.put(name, region);
     }
 
     public void retrieveRegion(String name) {
@@ -93,31 +68,16 @@ public class RegionWorker implements Runnable {
             String rname = name.toLowerCase();
             RegenRegion r = this.plugin.getDataFacade().getRegion(rname);
             if (r != null) {
-                try {
-                    this.lock.writeLock().lock();
-                    this.regions.put(rname, r);
-                } finally {
-                    this.lock.writeLock().unlock();
-                }
+                this.regions.put(rname, r);
             }
         });
     }
 
     public void remove(String name) {
-        try {
-            this.lock.writeLock().lock();
-            this.regions.remove(name);
-        } finally {
-            this.lock.writeLock().unlock();
-        }
+        this.regions.remove(name);
     }
     
     public boolean hasRegion(String name) {
-        try {
-            this.lock.readLock().lock();
-            return this.regions.containsKey(name);
-        } finally {
-            this.lock.readLock().unlock();
-        }
+        return this.regions.containsKey(name);
     }
 }
