@@ -54,9 +54,6 @@ public class DataFacade {
         if (!db.checkTable("regions")) {
             db.update(Statements.CREATE_REGIONS_TABLE);
         }
-        if (!db.checkTable("worlds")) {
-            db.update(Statements.CREATE_WORLDS_TABLE);
-        }
         if (!db.checkTable("blocks")) {
             db.update(Statements.CREATE_BLOCKS_TABLE);
         }
@@ -70,13 +67,13 @@ public class DataFacade {
     }
     
     public synchronized void addRegion(String name, Map<Vector, Material> blocks, UUID world) {
-        this.db.update(Statements.ADD_REGION, name, world);
+        this.db.update(Statements.ADD_REGION, name, world.toString());
         this.db.batchUpdate(Statements.ADD_BLOCKS_TO_REGION, 100, blocks.entrySet(),
-                ent -> name,
                 ent -> ent.getKey().getBlockX(),
                 ent -> ent.getKey().getBlockY(),
                 ent -> ent.getKey().getBlockZ(),
-                ent -> ent.getValue().toString());
+                ent -> ent.getValue().toString(),
+                ent -> name);
     }
 
     public synchronized void removeRegion(String name) {

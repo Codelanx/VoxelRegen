@@ -40,9 +40,9 @@ import org.bukkit.entity.Player;
  * @version 1.0.0
  */
 public class CreateCommand extends CommandNode<VoxelRegen> {
-    
+
+    private static final int MAX_LENGTH = 24;
     private static final Set<String> RESERVED = Collections.unmodifiableSet(new HashSet<String>() {{
-        add("worlds");
         add("regions");
     }});
 
@@ -55,6 +55,10 @@ public class CreateCommand extends CommandNode<VoxelRegen> {
     @Override
     public CommandStatus execute(CommandSender sender, String... args) {
         Player p = (Player) sender;
+        if (args[0].length() > MAX_LENGTH) {
+            Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_MAXLEN, MAX_LENGTH);
+            return CommandStatus.SUCCESS;
+        }
         if (RESERVED.contains(args[0])) {
             Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_RESERVED);
             return CommandStatus.SUCCESS;

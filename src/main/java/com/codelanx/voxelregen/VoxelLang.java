@@ -46,6 +46,7 @@ public enum VoxelLang implements Lang {
     COMMAND_CREATE_NOREGION("command.create.no-region", "You must define a region first with &e%s&f!"),
     COMMAND_CREATE_RESERVED("command.create.reserved-word", "&cThat region name is reserved!"),
     COMMAND_CREATE_CONFLICT("command.create.conflict", "&cA region already exists with that name!"),
+    COMMAND_CREATE_MAXLEN("command.create.max-length", "Name too long! Max length: %d"),
     COMMAND_REMOVE_DONE("command.remove.done", "Region removed"),
     COMMAND_LIST_NONE("command.list.none", "There are no regions to list!"),
     COMMAND_LIST_SEPARATOR("command.list.separator", "&f, &e"),

@@ -28,16 +28,38 @@ package com.codelanx.voxelregen.data;
  */
 public class Statements {
 
-    //TODO: all this
-    static final String ADD_REGION = "";
-    static final String ADD_BLOCKS_TO_REGION = "";
-    static final String GET_REGION_CONTENTS = "";
-    static final String REMOVE_REGION = "";
-    static final String GET_WORLD = "";
-    static final String CREATE_REGIONS_TABLE = "";
-    static final String CREATE_WORLDS_TABLE = "";
-    static final String CREATE_BLOCKS_TABLE = "";
-    static final String GET_REGION_META = "";
-    static final String GET_ALL_REGIONS = "";
+    static final String CREATE_REGIONS_TABLE = "CREATE TABLE IF NOT EXISTS `regions` ("
+            + " `id` MEDIUMINT(7) UNSIGNED NOT NULL AUTO_INCREMENT,"
+            + " `name` VARCHAR(24) NOT NULL OCOLLATE 'utf8_unicode_ci',"
+            + " `world_uuid` CHAR(36) NOT NULL COLLATE 'utf8_unicode_ci`,"
+            + " PRIMARY KEY (`id`),"
+            + " UNIQUE INDEX `name` (`name`)"
+            + ")";
+    static final String CREATE_BLOCKS_TABLE = "CREATE TABLE IF NOT EXISTS `blocks` ("
+            + " `id` MEDIUMINT(8) UNSIGNED NOT NULL AUTO_INCREMENT,"
+            + " `region` MEDIUMINT(7) UNSIGNED NOT NULL,"
+            + " `x` MEDIUMINT(8) NOT NULL,"
+            + " `y` MEDIUMINT(8) NOT NULL,"
+            + " `z` MEDIUMINT(8) NOT NULL,"
+            + " `material` VARCHAR(16) NOT NULL COLLATE 'utf8_unicode_ci',"
+            + " PRIMARY KEY (`id`),"
+            + " UNIQUE INDEX `location` (`x`, `y`, `z`),"
+            + " INDEX `FK_region` (`region`),"
+            + " CONSTRAINT `FK_region` FOREIGN KEY (`region`) REFERENCES `regions` (`id`) ON UPDATE CASCADE ON DELETE CASCADE"
+            + ")";
+    static final String ADD_REGION = "INSERT IGNORE INTO `regions` (`name`, `world_uuid`) VALUES (?, ?)";
+    static final String ADD_BLOCKS_TO_REGION = "INSERT IGNORE INTO `blocks` (region, x, y, z, material)"
+            + " SELECT regions.id AS region, ? AS x, ? AS y, ? AS z, ? AS material"
+            + " FROM regions WHERE regions.name = ?";
+    static final String GET_REGION_CONTENTS = "SELECT blocks.x, blocks.y, blocks.z, blocks.material"
+            + " FROM blocks"
+            + " INNER JOIN regions ON regions.id = blocks.region"
+            + " WHERE regions.name = ?";
+    static final String REMOVE_REGION = "DELETE FROM `regions` WHERE `name` = ?";
+    static final String GET_WORLD = "SELECT `world_uuid` FROM `regions` WHERE `name` = ?";
+    static final String GET_REGION_META = "SELECT `name`, `world_uuid` FROM `regions`";
+    static final String GET_ALL_REGIONS = "SELECT regions.name, blocks.x, blocks.y, blocks.z, blocks.material"
+            + " FROM blocks"
+            + " INNER JOIN regions ON regions.id = blocks.region";
 
 }
