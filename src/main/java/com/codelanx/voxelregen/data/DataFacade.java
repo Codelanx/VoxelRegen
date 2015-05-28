@@ -78,13 +78,29 @@ public class DataFacade {
     }
 
     public synchronized void removeRegion(String name) {
-        int id = this.db.query(rs -> { return rs.getInt("id"); }, Statements.GET_REGION_ID, name).getResponse();
+        int id = this.db.query(rs -> {
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+            return -1;
+        }, Statements.GET_REGION_ID, name).getResponse();
+        if (id < 0) {
+            return;
+        }
         this.db.update(Statements.REMOVE_BLOCKS_WITH_ID, id);
         this.db.update(Statements.REMOVE_REGION, name);
     }
 
     public RegenRegion getRegion(String name) {
-        UUID world = this.db.query(rs -> { return UUID.fromString(rs.getString("world_uuid")); }, Statements.GET_WORLD, name).getResponse();
+        UUID world = this.db.query(rs -> {
+            if (rs.next()) {
+                return UUID.fromString(rs.getString("world_uuid"));
+            }
+            return null;
+        }, Statements.GET_WORLD, name).getResponse();
+        if (world == null) {
+            return null;
+        }
         return this.db.query(rs -> {
             Map<Vector, BlockData> back = new HashMap<>();
             while (rs.next()) {
