@@ -36,12 +36,22 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class RegionWorker implements Runnable {
 
     private final Map<String, RegenRegion> regions = new HashMap<>();
-    private final ReadWriteLock lock = new ReentrantReadWriteLock(); //TODO: implement lock usage
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final VoxelRegen plugin;
     
     public RegionWorker(VoxelRegen plugin) {
         this.plugin = plugin;
-        this.regions.putAll(this.plugin.getDataFacade().getRegions());
+        Scheduler.runAsyncTask(() -> {
+            Map<String, RegenRegion> in = this.plugin.getDataFacade().getRegions();
+            try {
+                this.lock.readLock().lock();
+                this.lock.writeLock().lock();
+                this.regions.putAll(in);
+            } finally {
+                this.lock.writeLock().unlock();
+                this.lock.readLock().unlock();
+            }
+        });
     }
 
     @Override
@@ -52,15 +62,30 @@ public class RegionWorker implements Runnable {
     }
 
     public void removeRegion(String name) {
-        this.regions.remove(name);
+        try {
+            this.lock.writeLock().lock();
+            this.regions.remove(name);
+        } finally {
+            this.lock.writeLock().unlock();
+        }
     }
 
     public Set<String> getRegionNames() {
-        return this.regions.keySet();
+        try {
+            this.lock.readLock().lock();
+            return this.regions.keySet();
+        } finally {
+            this.lock.readLock().unlock();
+        }
     }
 
     public void addRegion(String name, RegenRegion region) {
-        this.regions.put(name, region);
+        try {
+            this.lock.writeLock().lock();
+            this.regions.put(name, region);
+        } finally {
+            this.lock.writeLock().unlock();
+        }
     }
 
     public void retrieveRegion(String name) {
@@ -68,16 +93,31 @@ public class RegionWorker implements Runnable {
             String rname = name.toLowerCase();
             RegenRegion r = this.plugin.getDataFacade().getRegion(rname);
             if (r != null) {
-                this.regions.put(rname, r);
+                try {
+                    this.lock.writeLock().lock();
+                    this.regions.put(rname, r);
+                } finally {
+                    this.lock.writeLock().unlock();
+                }
             }
         });
     }
 
     public void remove(String name) {
-        this.regions.remove(name);
+        try {
+            this.lock.writeLock().lock();
+            this.regions.remove(name);
+        } finally {
+            this.lock.writeLock().unlock();
+        }
     }
     
     public boolean hasRegion(String name) {
-        return this.regions.containsKey(name);
+        try {
+            this.lock.readLock().lock();
+            return this.regions.containsKey(name);
+        } finally {
+            this.lock.readLock().unlock();
+        }
     }
 }
