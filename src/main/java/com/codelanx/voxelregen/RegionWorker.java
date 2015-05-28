@@ -41,6 +41,7 @@ public class RegionWorker implements Runnable {
     
     public RegionWorker(VoxelRegen plugin) {
         this.plugin = plugin;
+        this.regions.putAll(this.plugin.getDataFacade().getRegions());
     }
 
     @Override
