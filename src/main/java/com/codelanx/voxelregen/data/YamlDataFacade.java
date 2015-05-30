@@ -59,12 +59,12 @@ public class YamlDataFacade implements DataFacade {
     public synchronized void addRegion(String name, Map<Vector, BlockData> blocks, UUID world) {
         FileConfiguration f = this.getConfig(name);
         f.set("world", world.toString());
-        Set<Map<String, Object>> setter = blocks.entrySet().stream().map(ent -> {
+        List<Map<String, Object>> setter = blocks.entrySet().stream().map(ent -> {
             Map<String, Object> add = new HashMap<>();
             add.put("location", ent.getKey());
             add.put("block", ent.getValue().toString());
             return add;
-        }).collect(Collectors.toSet());
+        }).collect(Collectors.toList());
         f.set("blocks", setter);
         try {
             f.save(this.getFile(name));
