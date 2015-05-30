@@ -23,35 +23,34 @@ import com.codelanx.codelanxlib.command.CommandNode;
 import com.codelanx.codelanxlib.command.CommandStatus;
 import com.codelanx.codelanxlib.command.TabInfo;
 import com.codelanx.codelanxlib.config.Lang;
+import com.codelanx.voxelregen.VoxelLang;
 import com.codelanx.voxelregen.VoxelRegen;
-import com.codelanx.voxelregen.command.vr.CreateCommand;
-import com.codelanx.voxelregen.command.vr.RemoveCommand;
-import com.codelanx.voxelregen.command.vr.SelectCommand;
 import java.util.List;
+import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 
 /**
- * Class description for {@link VoxelRegenCommand}
+ * Class description for {@link ListCommand}
  *
  * @since 1.0.0
  * @author 1Rogue
  * @version 1.0.0
  */
-public class VoxelRegenCommand extends CommandNode<VoxelRegen> {
+public class ListCommand extends CommandNode<VoxelRegen> {
 
-    private final CommandNode<?> node;
-
-    public VoxelRegenCommand(VoxelRegen plugin) {
+    public ListCommand(VoxelRegen plugin) {
         super(plugin);
-        this.setExecutable(false);
-        this.registerAsBukkitCommand();
-        this.addChild(SelectCommand::new, CreateCommand::new, RemoveCommand::new);
-        this.node = this.getChild("help");
     }
 
     @Override
     public CommandStatus execute(CommandSender sender, String... args) {
-        this.node.execute(sender, args);
+        Set<String> names = this.plugin.getRegionNames();
+        if (names.isEmpty()) {
+            Lang.sendMessage(sender, VoxelLang.COMMAND_LIST_NONE);
+        } else {
+            Lang.sendMessage(sender, VoxelLang.COMMAND_LIST_FORMAT, StringUtils.join(names, VoxelLang.COMMAND_LIST_SEPARATOR.get()));
+        }
         return CommandStatus.SUCCESS;
     }
 
@@ -62,12 +61,12 @@ public class VoxelRegenCommand extends CommandNode<VoxelRegen> {
 
     @Override
     public String getName() {
-        return "voxelregen";
+        return "list";
     }
 
     @Override
     public Lang info() {
-        return null;
+        return VoxelLang.COMMAND_INFO_LIST;
     }
 
 }

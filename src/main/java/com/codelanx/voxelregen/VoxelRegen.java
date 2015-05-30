@@ -19,9 +19,13 @@
  */
 package com.codelanx.voxelregen;
 
+import com.codelanx.codelanxlib.command.CommandNode;
 import com.codelanx.codelanxlib.util.Scheduler;
 import com.codelanx.codelanxlib.util.exception.Exceptions;
-import com.codelanx.voxelregen.command.VoxelRegenCommand;
+import com.codelanx.voxelregen.command.CreateCommand;
+import com.codelanx.voxelregen.command.ListCommand;
+import com.codelanx.voxelregen.command.RemoveCommand;
+import com.codelanx.voxelregen.command.SelectCommand;
 import com.codelanx.voxelregen.data.DataFacade;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +53,10 @@ public class VoxelRegen extends JavaPlugin {
         this.worker = new RegionWorker(this);
         int period = VoxelConfig.REGEN_TIME.as(int.class);
         Scheduler.runAsyncTaskRepeat(this.worker, period, period);
-        new VoxelRegenCommand(this);
+        CommandNode.getLinkingNode("voxelregen", this, node -> {
+            this.getServer().getPluginCommand(node.getName()).setExecutor(node);
+            node.addChild(SelectCommand::new, CreateCommand::new, RemoveCommand::new, ListCommand::new);
+        });
     }
     
     public void queueRegionCreation(UUID player, VoxelRegion make) {

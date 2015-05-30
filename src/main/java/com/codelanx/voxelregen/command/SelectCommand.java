@@ -17,7 +17,7 @@
  * You should have received a copy of the Creative Commons BY-NC-ND license
  * long with this program. If not, see <https://creativecommons.org/licenses/>.
  */
-package com.codelanx.voxelregen.command.vr;
+package com.codelanx.voxelregen.command;
 
 import com.codelanx.codelanxlib.command.CommandNode;
 import com.codelanx.codelanxlib.command.CommandStatus;
