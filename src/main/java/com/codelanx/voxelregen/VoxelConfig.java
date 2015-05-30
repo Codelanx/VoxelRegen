@@ -39,6 +39,7 @@ public enum VoxelConfig implements Config {
     
     BLOCKS_TO_REGEN("regenerated-blocks", new ArrayList<>()),
     REGEN_TIME("seconds-between-regens", 300),
+    STORAGE_TYPE("storage-type", "yml"),
     ;
 
     private static final DataHolder<Yaml> DATA = new DataHolder<>(Yaml.class);

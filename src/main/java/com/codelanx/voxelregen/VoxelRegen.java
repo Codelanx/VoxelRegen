@@ -23,14 +23,10 @@ import com.codelanx.codelanxlib.util.Scheduler;
 import com.codelanx.codelanxlib.util.exception.Exceptions;
 import com.codelanx.voxelregen.command.VoxelRegenCommand;
 import com.codelanx.voxelregen.data.DataFacade;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -49,16 +45,7 @@ public class VoxelRegen extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        File db = new File(this.getDataFolder(), "data.db");
-        this.getDataFolder().mkdirs();
-        if (!db.exists()) {
-            try {
-                db.createNewFile();
-            } catch (IOException ex) {
-                Logger.getLogger(VoxelRegen.class.getName()).log(Level.SEVERE, "Error creating SQLite database file", ex);
-            }
-        }
-        this.data = new DataFacade(db);
+        this.data = DataFacade.getData(this);
         this.worker = new RegionWorker(this);
         Scheduler.runAsyncTaskRepeat(this.worker, 0, VoxelConfig.REGEN_TIME.as(int.class));
         new VoxelRegenCommand(this);
