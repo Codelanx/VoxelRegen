@@ -89,6 +89,7 @@ public class SelectCommand extends CommandNode<VoxelRegen> implements Listener {
                 if (this.triggered.remove(event.getPlayer().getUniqueId())) {
                     this.lefts.put(event.getPlayer().getUniqueId(), event.getPlayer().getLocation());
                     Lang.sendMessage(event.getPlayer(), VoxelLang.COMMAND_SELECT_RIGHT);
+                    event.setCancelled(true);
                 }
                 break;
             case RIGHT_CLICK_AIR:
@@ -98,6 +99,7 @@ public class SelectCommand extends CommandNode<VoxelRegen> implements Listener {
                     Location second = event.getPlayer().getLocation();
                     this.plugin.queueRegionCreation(event.getPlayer().getUniqueId(), new VoxelRegion(first, second));
                     Lang.sendMessage(event.getPlayer(), VoxelLang.COMMAND_SELECT_DONE, "/" + this.getParent().getChild("create").getUsage());
+                    event.setCancelled(true);
                 }
                 break;
         }

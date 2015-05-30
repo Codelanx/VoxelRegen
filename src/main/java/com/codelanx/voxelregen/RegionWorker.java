@@ -38,10 +38,8 @@ public class RegionWorker implements Runnable {
     
     public RegionWorker(VoxelRegen plugin) {
         this.plugin = plugin;
-        Scheduler.runAsyncTask(() -> {
-            Map<String, RegenRegion> in = this.plugin.getDataFacade().getRegions();
-            this.regions.putAll(in);
-        });
+        Map<String, RegenRegion> in = this.plugin.getDataFacade().getRegions();
+        this.regions.putAll(in);
     }
 
     @Override

@@ -72,6 +72,7 @@ public class CreateCommand extends CommandNode<VoxelRegen> {
             return CommandStatus.SUCCESS;
         }
         this.plugin.createQueuedRegion(p.getUniqueId(), args[0]);
+        Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_DONE, args[0].toLowerCase());
         return CommandStatus.SUCCESS;
     }
 

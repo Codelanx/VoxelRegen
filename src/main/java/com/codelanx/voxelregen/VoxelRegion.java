@@ -27,12 +27,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.function.IntBinaryOperator;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -46,9 +46,17 @@ import org.bukkit.util.Vector;
  * @version 1.0.0
  */
 public class VoxelRegion implements ConfigurationSerializable {
-    
+
+    private static final Set<BlockData> PROTECTED_TYPES = new TreeSet<>();
     private final Vector max, min;
     private final World world;
+
+    static {
+        List<BlockData> raws = (VoxelConfig.BLOCKS_TO_REGEN.as(List.class, String.class)
+                .stream().map(BlockData::fromString).filter(Lambdas::notNull).collect(Collectors.toList()));
+        PROTECTED_TYPES.addAll(raws.stream().filter(b -> b.getData() < 0).collect(Collectors.toList()));
+        PROTECTED_TYPES.addAll(raws);
+    }
 
     public VoxelRegion(Location one, Location two) {
         this(Reflections.nullSafeMutation(one, Location::toVector),
@@ -76,16 +84,14 @@ public class VoxelRegion implements ConfigurationSerializable {
     }
 
     public Map<Vector, BlockData> calculate() {
-        Set<BlockData> types = VoxelConfig.BLOCKS_TO_REGEN.as(List.class, String.class)
-                .stream().map(BlockData::fromString).filter(Lambdas::notNull).collect(Collectors.toSet());
         Map<Vector, BlockData> back = new HashMap<>();
         Location curr = max.toLocation(this.getWorld());
-        for(; curr.getBlockY() >= 0 || curr.getBlockY() >= min.getBlockY(); curr.add(0, -1, 0)) {
+        for(; curr.getBlockY() >= min.getBlockY(); curr.add(0, -1, 0)) {
             for (; curr.getBlockX() >= min.getBlockX(); curr.add(-1, 0, 0)) {
                 for (; curr.getBlockZ() >= min.getBlockZ(); curr.add(0, 0, -1)) {
                     Block b = curr.getBlock();
                     BlockData ch = new BlockData(b.getType(), b.getData());
-                    if (types.contains(ch)) {
+                    if (PROTECTED_TYPES.contains(ch)) {
                         back.put(curr.toVector(), ch);
                     }
                 }

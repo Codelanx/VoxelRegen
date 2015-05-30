@@ -47,7 +47,8 @@ public class VoxelRegen extends JavaPlugin {
     public void onEnable() {
         this.data = DataFacade.getData(this);
         this.worker = new RegionWorker(this);
-        Scheduler.runAsyncTaskRepeat(this.worker, 0, VoxelConfig.REGEN_TIME.as(int.class));
+        int period = VoxelConfig.REGEN_TIME.as(int.class);
+        Scheduler.runAsyncTaskRepeat(this.worker, period, period);
         new VoxelRegenCommand(this);
     }
     

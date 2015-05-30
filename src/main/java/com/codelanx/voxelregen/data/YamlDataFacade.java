@@ -25,10 +25,8 @@ import com.codelanx.voxelregen.RegenRegion;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,7 +83,7 @@ public class YamlDataFacade implements DataFacade {
         List<?> data = f.getList("blocks");
         Map<Vector, BlockData> blocks = new HashMap<>();
         data.stream().map(o -> Config.getConfigSectionValue(o)).forEach(bl -> {
-            blocks.put((Vector) bl.get("location"), BlockData.fromString(String.valueOf("block")));
+            blocks.put((Vector) bl.get("location"), BlockData.fromString(String.valueOf(bl.get("block"))));
         });
         return new RegenRegion(world, blocks);
     }
