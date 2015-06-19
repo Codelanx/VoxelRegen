@@ -57,22 +57,16 @@ public class CreateCommand extends CommandNode<VoxelRegen> {
         Player p = (Player) sender;
         if (args[0].length() > MAX_LENGTH) {
             Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_MAXLEN, MAX_LENGTH);
-            return CommandStatus.SUCCESS;
-        }
-        if (RESERVED.contains(args[0])) {
+        } else if (RESERVED.contains(args[0])) {
             Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_RESERVED);
-            return CommandStatus.SUCCESS;
-        }
-        if (!this.plugin.hasQueuedRegion(p.getUniqueId())) {
+        } else if (!this.plugin.hasQueuedRegion(p.getUniqueId())) {
             Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_NOREGION, "/" + this.getParent().getChild("select").getUsage());
-            return CommandStatus.SUCCESS;
-        }
-        if (this.plugin.regionExists(args[0])) {
+        } else if (this.plugin.regionExists(args[0])) {
             Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_CONFLICT);
-            return CommandStatus.SUCCESS;
+        } else {
+            this.plugin.createQueuedRegion(p.getUniqueId(), args[0]);
+            Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_DONE, args[0].toLowerCase());
         }
-        this.plugin.createQueuedRegion(p.getUniqueId(), args[0]);
-        Lang.sendMessage(sender, VoxelLang.COMMAND_CREATE_DONE, args[0].toLowerCase());
         return CommandStatus.SUCCESS;
     }
 
